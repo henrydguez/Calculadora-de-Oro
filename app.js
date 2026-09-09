@@ -20,7 +20,7 @@ function toggleView(viewId){const target=$(viewId);if(!target)return;document.qu
 $('priceRange').addEventListener('input',e=>{state.price=n(e.target.value);$('referencePrice').textContent=`${state.price.toFixed(2)} €/g`;calculate()});
 $('clearBtn').addEventListener('click',clearAll);
 $('saveConfig').addEventListener('click',()=>{config={max:n($('cfgMax').value)||defaults.max,pawn1:n($('cfgPawn1').value)||defaults.pawn1,pawn2:n($('cfgPawn2').value)||defaults.pawn2,offers:[1,2,3,4].map(i=>n($(`cfgOffer${i}`).value)||defaults.offers[i-1])};localStorage.setItem('goldConfig',JSON.stringify(config));loadConfig();calculate();alert('Configuración guardada')});
-const bottomNav=$('.bottom-nav');
+const bottomNav=document.querySelector('.bottom-nav');
 if(bottomNav)bottomNav.addEventListener('click',e=>{const btn=e.target.closest('.nav-item');if(btn&&bottomNav.contains(btn)){e.preventDefault();e.stopPropagation();toggleView(btn.dataset.view)}},false);
 ['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
 const themeBtn=$('themeBtn');
