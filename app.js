@@ -25,6 +25,13 @@ if(bottomNav)bottomNav.addEventListener('click',e=>{const btn=e.target.closest('
 ['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
 const themeBtn=$('themeBtn');
 if(themeBtn)themeBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleTheme()},false);
+// Evita zoom accidental por doble toque o gestos de zoom en navegadores móviles/webviews.
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<=300)e.preventDefault();lastTouchEnd=now},{passive:false});
 setTheme(localStorage.getItem('goldTheme')==='light'?'light':'dark');
 renderInputs();loadConfig();renderHistory();calculate();renderPawn();
 });
