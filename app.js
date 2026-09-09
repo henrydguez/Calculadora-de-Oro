@@ -15,14 +15,14 @@ function renderHistory(){const list=$('historyList');let items=[];try{items=JSON
 function clearAll(){document.querySelectorAll('[data-karat]').forEach(i=>i.value='');KARATS.forEach(k=>state.weights[k]=0);calculate()}
 function setTheme(mode){const isLight=mode==='light';document.body.classList.toggle('light',isLight);document.documentElement.classList.toggle('light',isLight);document.documentElement.dataset.theme=isLight?'light':'dark';localStorage.setItem('goldTheme',isLight?'light':'dark');const btn=$('themeBtn');if(btn){btn.textContent=isLight?'🌙':'☀️';btn.setAttribute('aria-label',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('title',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('aria-pressed',String(isLight))}const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',isLight?'#f5f2ea':'#111111')}
 function toggleTheme(){setTheme(document.documentElement.dataset.theme==='light'?'dark':'light')}
-function toggleView(viewId){const target=$(viewId);if(!target)return;document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===viewId));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===viewId));if(viewId==='historial')renderHistory();if(viewId==='empenos')renderPawn();window.scrollTo(0,0)}
+function toggleView(viewId){const target=$(viewId);if(!target)return;document.querySelectorAll('.nav-item').forEach(x=>{const active=x.dataset.view===viewId;x.classList.toggle('active',active);x.setAttribute('aria-current',active?'page':'false')});document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===viewId));if(viewId==='historial')renderHistory();if(viewId==='empenos')renderPawn();window.scrollTo(0,0)}
 $('priceRange').addEventListener('input',e=>{state.price=n(e.target.value);$('referencePrice').textContent=`${state.price.toFixed(2)} €/g`;calculate()});
 $('clearBtn').addEventListener('click',clearAll);
 $('saveConfig').addEventListener('click',()=>{config={max:n($('cfgMax').value)||defaults.max,pawn1:n($('cfgPawn1').value)||defaults.pawn1,pawn2:n($('cfgPawn2').value)||defaults.pawn2,offers:[1,2,3,4].map(i=>n($(`cfgOffer${i}`).value)||defaults.offers[i-1])};localStorage.setItem('goldConfig',JSON.stringify(config));loadConfig();calculate();alert('Configuración guardada')});
-document.addEventListener('click',e=>{const btn=e.target.closest?.('.nav-item');if(!btn)return;e.preventDefault();toggleView(btn.dataset.view)},false);
-document.addEventListener('pointerup',e=>{const btn=e.target.closest?.('.nav-item');if(!btn)return;e.preventDefault();toggleView(btn.dataset.view)},false);
+const bottomNav=document.querySelector('.bottom-nav');
+if(bottomNav){bottomNav.addEventListener('click',e=>{const btn=e.target.closest?.('.nav-item');if(!btn||!bottomNav.contains(btn))return;e.preventDefault();toggleView(btn.dataset.view)},false)}
 ['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
 const themeBtn=$('themeBtn');
-if(themeBtn){themeBtn.addEventListener('pointerup',e=>{e.preventDefault();toggleTheme()},{passive:false});themeBtn.addEventListener('click',e=>{e.preventDefault();toggleTheme()},{passive:false})}
+if(themeBtn)themeBtn.addEventListener('click',e=>{e.preventDefault();toggleTheme()},false);
 setTheme(localStorage.getItem('goldTheme')==='light'?'light':'dark');
 renderInputs();loadConfig();renderHistory();calculate();renderPawn();
