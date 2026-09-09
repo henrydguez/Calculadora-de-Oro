@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <meta name="theme-color" content="#111111">
   <meta name="description" content="Calculadora móvil de valoración, compra y empeño de oro.">
   <link rel="manifest" href="manifest.webmanifest">
@@ -18,75 +18,13 @@
       </div>
       <button id="themeBtn" class="icon-btn" type="button" aria-label="Activar modo día" aria-pressed="false" title="Activar modo día">☀️</button>
     </header>
-
-    <section id="valoracion" class="view active">
-      <div class="hero-card">
-        <div>
-          <span>Valor estimado</span>
-          <strong id="totalValue">0,00 €</strong>
-          <small id="totalWeight">0,00 g · equivalente 18K: 0,00 g</small>
-        </div>
-        <div class="gold-mark">Au</div>
-      </div>
-
-      <div class="section-title"><h2>Introduce el oro</h2><button id="clearBtn" class="text-btn">Limpiar</button></div>
-      <div class="grid" id="karatInputs"></div>
-
-      <div class="card">
-        <div class="card-head"><h3>Referencia de valoración</h3><span id="referencePrice">75,00 €/g</span></div>
-        <input id="priceRange" type="range" min="1" max="150" step="0.5" value="75">
-        <div class="range-labels"><span>1 €/g</span><span>150 €/g</span></div>
-      </div>
-
-      <div class="card summary-card">
-        <div><span>Valor bruto</span><strong id="grossValue">0,00 €</strong></div>
-        <div><span>Equivalente 18K</span><strong id="eq18">0,00 g</strong></div>
-        <div><span>Pureza estimada</span><strong id="purity">0,0%</strong></div>
-      </div>
-    </section>
-
-    <section id="compra" class="view">
-      <div class="page-heading"><span>Compra</span><h2>Calcula tu oferta</h2><p>Compara automáticamente diferentes precios por gramo.</p></div>
-      <div class="card">
-        <div class="card-head"><h3>Peso equivalente 18K</h3><strong id="buyWeight">0,00 g</strong></div>
-      </div>
-      <div id="offerTable" class="offer-list"></div>
-      <div class="card accent-card"><span>Precio máximo configurado</span><strong id="maxOffer">86,00 €/g</strong><small>Oferta máxima sobre equivalente 18K</small></div>
-    </section>
-
-    <section id="empenos" class="view">
-      <div class="page-heading"><span>Empeños</span><h2>Valor de garantía</h2><p>Estimación rápida para operaciones de empeño.</p></div>
-      <div id="pawnTable" class="offer-list"></div>
-      <div class="card"><div class="card-head"><h3>Importe recomendado</h3><strong id="pawnRecommended">0,00 €</strong></div><p class="muted">Calculado sobre el equivalente a 18K y el nivel de garantía seleccionado.</p></div>
-    </section>
-
-    <section id="historial" class="view">
-      <div class="page-heading"><span>Historial</span><h2>Últimas valoraciones</h2><p>Se guardan únicamente en este dispositivo.</p></div>
-      <div id="historyList" class="history-list"></div>
-    </section>
-
-    <section id="configuracion" class="view">
-      <div class="page-heading"><span>Configuración</span><h2>Parámetros</h2><p>Ajusta los precios de trabajo de la calculadora.</p></div>
-      <div class="card form-card">
-        <label>Precio máximo de compra €/g<input id="cfgMax" type="number" inputmode="decimal" value="86"></label>
-        <label>Empeño básico €/g<input id="cfgPawn1" type="number" inputmode="decimal" value="55"></label>
-        <label>Empeño alto €/g<input id="cfgPawn2" type="number" inputmode="decimal" value="75"></label>
-        <label>Oferta 1 €/g<input id="cfgOffer1" type="number" inputmode="decimal" value="12"></label>
-        <label>Oferta 2 €/g<input id="cfgOffer2" type="number" inputmode="decimal" value="29"></label>
-        <label>Oferta 3 €/g<input id="cfgOffer3" type="number" inputmode="decimal" value="49"></label>
-        <label>Oferta 4 €/g<input id="cfgOffer4" type="number" inputmode="decimal" value="75"></label>
-        <button id="saveConfig" class="primary-btn">Guardar configuración</button>
-      </div>
-    </section>
+    <section id="valoracion" class="view active"><div class="hero-card"><div><span>Valor estimado</span><strong id="totalValue">0,00 €</strong><small id="totalWeight">0,00 g · equivalente 18K: 0,00 g</small></div><div class="gold-mark">Au</div></div><div class="section-title"><h2>Introduce el oro</h2><button id="clearBtn" class="text-btn">Limpiar</button></div><div class="grid" id="karatInputs"></div><div class="card"><div class="card-head"><h3>Referencia de valoración</h3><span id="referencePrice">75,00 €/g</span></div><input id="priceRange" type="range" min="1" max="150" step="0.5" value="75"><div class="range-labels"><span>1 €/g</span><span>150 €/g</span></div></div><div class="card summary-card"><div><span>Valor bruto</span><strong id="grossValue">0,00 €</strong></div><div><span>Equivalente 18K</span><strong id="eq18">0,00 g</strong></div><div><span>Pureza estimada</span><strong id="purity">0,0%</strong></div></div></section>
+    <section id="compra" class="view"><div class="page-heading"><span>Compra</span><h2>Calcula tu oferta</h2><p>Compara automáticamente diferentes precios por gramo.</p></div><div class="card"><div class="card-head"><h3>Peso equivalente 18K</h3><strong id="buyWeight">0,00 g</strong></div></div><div id="offerTable" class="offer-list"></div><div class="card accent-card"><span>Precio máximo configurado</span><strong id="maxOffer">86,00 €/g</strong><small>Oferta máxima sobre equivalente 18K</small></div></section>
+    <section id="empenos" class="view"><div class="page-heading"><span>Empeños</span><h2>Valor de garantía</h2><p>Estimación rápida para operaciones de empeño.</p></div><div id="pawnTable" class="offer-list"></div><div class="card"><div class="card-head"><h3>Importe recomendado</h3><strong id="pawnRecommended">0,00 €</strong></div><p class="muted">Calculado sobre el equivalente a 18K y el nivel de garantía seleccionado.</p></div></section>
+    <section id="historial" class="view"><div class="page-heading"><span>Historial</span><h2>Últimas valoraciones</h2><p>Se guardan únicamente en este dispositivo.</p></div><div id="historyList" class="history-list"></div></section>
+    <section id="configuracion" class="view"><div class="page-heading"><span>Configuración</span><h2>Parámetros</h2><p>Ajusta los precios de trabajo de la calculadora.</p></div><div class="card form-card"><label>Precio máximo de compra €/g<input id="cfgMax" type="number" inputmode="decimal" value="86"></label><label>Empeño básico €/g<input id="cfgPawn1" type="number" inputmode="decimal" value="55"></label><label>Empeño alto €/g<input id="cfgPawn2" type="number" inputmode="decimal" value="75"></label><label>Oferta 1 €/g<input id="cfgOffer1" type="number" inputmode="decimal" value="12"></label><label>Oferta 2 €/g<input id="cfgOffer2" type="number" inputmode="decimal" value="29"></label><label>Oferta 3 €/g<input id="cfgOffer3" type="number" inputmode="decimal" value="49"></label><label>Oferta 4 €/g<input id="cfgOffer4" type="number" inputmode="decimal" value="75"></label><button id="saveConfig" class="primary-btn">Guardar configuración</button></div></section>
   </main>
-
-  <nav class="bottom-nav" aria-label="Navegación principal">
-    <button class="nav-item active" data-view="valoracion"><span>◉</span><small>Valoración</small></button>
-    <button class="nav-item" data-view="compra"><span>€</span><small>Compra</small></button>
-    <button class="nav-item" data-view="empenos"><span>◇</span><small>Empeños</small></button>
-    <button class="nav-item" data-view="historial"><span>↺</span><small>Historial</small></button>
-    <button class="nav-item" data-view="configuracion"><span>⚙</span><small>Ajustes</small></button>
-  </nav>
+  <nav class="bottom-nav" aria-label="Navegación principal"><button class="nav-item active" data-view="valoracion"><span>◉</span><small>Valoración</small></button><button class="nav-item" data-view="compra"><span>€</span><small>Compra</small></button><button class="nav-item" data-view="empenos"><span>◇</span><small>Empeños</small></button><button class="nav-item" data-view="historial"><span>↺</span><small>Historial</small></button><button class="nav-item" data-view="configuracion"><span>⚙</span><small>Ajustes</small></button></nav>
   <script src="app.js"></script>
 </body>
 </html>
