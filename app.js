@@ -14,15 +14,13 @@ function loadConfig(){$('cfgMax').value=config.max;$('cfgPawn1').value=config.pa
 function renderHistory(){const list=$('historyList');let items=[];try{items=JSON.parse(localStorage.getItem('goldHistory')||'[]')}catch{}list.innerHTML=items.map(x=>`<div class="history-item"><strong>${€(x.value)}</strong><div>${Number(x.weight).toFixed(2)} g · ${Number(x.eq).toFixed(2)} g eq. 18K</div><small>${x.date}</small></div>`).join('')}
 function clearAll(){document.querySelectorAll('[data-karat]').forEach(i=>i.value='');KARATS.forEach(k=>state.weights[k]=0);calculate()}
 function applyTheme(isLight){document.body.classList.toggle('light',isLight);const btn=$('themeBtn');btn.textContent=isLight?'🌙':'☀️';btn.setAttribute('aria-label',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('title',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('aria-pressed',String(isLight));const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',isLight?'#f5f2ea':'#111111')}
-function toggleView(viewId){document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===viewId));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===viewId));if(viewId==='historial')renderHistory();if(viewId==='empenos')renderPawn();window.scrollTo(0,0)}
+function toggleView(viewId){const target=$(viewId);if(!target)return;document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===viewId));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===viewId));if(viewId==='historial')renderHistory();if(viewId==='empenos')renderPawn();window.scrollTo(0,0)}
 $('priceRange').addEventListener('input',e=>{state.price=n(e.target.value);$('referencePrice').textContent=`${state.price.toFixed(2)} €/g`;calculate()});
 $('clearBtn').addEventListener('click',clearAll);
 $('saveConfig').addEventListener('click',()=>{config={max:n($('cfgMax').value)||defaults.max,pawn1:n($('cfgPawn1').value)||defaults.pawn1,pawn2:n($('cfgPawn2').value)||defaults.pawn2,offers:[1,2,3,4].map(i=>n($(`cfgOffer${i}`).value)||defaults.offers[i-1])};localStorage.setItem('goldConfig',JSON.stringify(config));loadConfig();calculate();alert('Configuración guardada')});
-// Navegación táctil robusta: pointerup funciona directamente en iPhone/iPad y click conserva teclado/ratón.
-const nav=$('.bottom-nav');
-let lastNavPointer=0;
-nav.addEventListener('pointerup',e=>{const btn=e.target.closest('.nav-item');if(!btn)return;lastNavPointer=Date.now();e.preventDefault();toggleView(btn.dataset.view)},{passive:false});
-nav.addEventListener('click',e=>{const btn=e.target.closest('.nav-item');if(!btn)return;if(Date.now()-lastNavPointer<500)return;toggleView(btn.dataset.view)});
+// Navegación: delegada en document para evitar problemas de capas/táctiles en móviles.
+document.addEventListener('click',e=>{const btn=e.target.closest?.('.nav-item');if(!btn)return;e.preventDefault();toggleView(btn.dataset.view)},false);
+document.addEventListener('pointerup',e=>{const btn=e.target.closest?.('.nav-item');if(!btn)return;e.preventDefault();toggleView(btn.dataset.view)},false);
 ['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
 $('themeBtn').addEventListener('click',()=>{const isLight=!document.body.classList.contains('light');localStorage.setItem('goldTheme',isLight?'light':'dark');applyTheme(isLight)});
 applyTheme(localStorage.getItem('goldTheme')==='light');renderInputs();loadConfig();renderHistory();calculate();renderPawn();
