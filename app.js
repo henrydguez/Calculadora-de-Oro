@@ -5,9 +5,10 @@ function readConfig(){try{const saved=JSON.parse(localStorage.getItem('goldConfi
 let config=readConfig();
 const state={weights:Object.fromEntries(KARATS.map(k=>[k,0])),price:75};
 const eur=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number.isFinite(v)?v:0);
-const n=v=>Number.parseFloat(String(v??'').replace(',','.'))||0;
+const n=v=>Number.parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'))||0;
 const $=id=>document.getElementById(id);
-function renderInputs(){$('karatInputs').innerHTML=KARATS.map(k=>`<div class="karat-card"><label>${k}K</label><input data-karat="${k}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"><em>gramos</em></div>`).join('');document.querySelectorAll('[data-karat]').forEach(i=>i.addEventListener('input',e=>{state.weights[e.target.dataset.karat]=n(e.target.value);calculate()}))}
+function enableCommaDecimals(){document.querySelectorAll('input[type="number"]').forEach(input=>{input.type='text';input.inputMode='decimal';input.setAttribute('pattern','[0-9]*[,.]?[0-9]*');input.setAttribute('autocomplete','off');input.removeAttribute('min');input.removeAttribute('step')})}
+function renderInputs(){$('karatInputs').innerHTML=KARATS.map(k=>`<div class="karat-card"><label>${k}K</label><input data-karat="${k}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"><em>gramos</em></div>`).join('');enableCommaDecimals();document.querySelectorAll('[data-karat]').forEach(i=>i.addEventListener('input',e=>{state.weights[e.target.dataset.karat]=n(e.target.value);calculate()}))}
 function calculate(){const total=Object.values(state.weights).reduce((a,b)=>a+b,0);const eq=KARATS.reduce((a,k)=>a+state.weights[k]*(k/18),0);const fine=KARATS.reduce((a,k)=>a+state.weights[k]*(k/24),0);const purity=total?fine/total*100:0;$('totalWeight').textContent=`${total.toFixed(2)} g · equivalente 18K: ${eq.toFixed(2)} g`;$('totalValue').textContent=eur(eq*state.price);$('grossValue').textContent=eur(eq*state.price);$('eq18').textContent=`${eq.toFixed(2)} g`;$('purity').textContent=`${purity.toFixed(1)}%`;$('buyWeight').textContent=`${eq.toFixed(2)} g`;renderOffers(eq);renderPawn()}
 function renderOffers(eq){const offers=[...config.offers,config.max].sort((a,b)=>a-b);$('offerTable').innerHTML=offers.map((r,i)=>`<div class="offer"><div><span>${r===config.max?'Máximo':'Oferta '+(i+1)}</span><div class="rate">${Number(r).toFixed(2)} €/g</div></div><div class="amount">${eur(eq*r)}</div></div>`).join('');$('maxOffer').textContent=`${Number(config.max).toFixed(2)} €/g`}
 function renderPawn(){const grams=n($('pawnGrams')?.value),min=n($('pawnMinRate')?.value),max=n($('pawnMaxRate')?.value);if($('pawnMinTotal'))$('pawnMinTotal').textContent=eur(grams*min);if($('pawnMaxTotal'))$('pawnMaxTotal').textContent=eur(grams*max)}
@@ -25,7 +26,6 @@ if(bottomNav)bottomNav.addEventListener('click',e=>{const btn=e.target.closest('
 ['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
 const themeBtn=$('themeBtn');
 if(themeBtn)themeBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleTheme()},false);
-// Evita zoom accidental por doble toque o gestos de zoom en navegadores móviles/webviews.
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
@@ -33,5 +33,5 @@ document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
 let lastTouchEnd=0;
 document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<=300)e.preventDefault();lastTouchEnd=now},{passive:false});
 setTheme(localStorage.getItem('goldTheme')==='light'?'light':'dark');
-renderInputs();loadConfig();renderHistory();calculate();renderPawn();
+renderInputs();loadConfig();enableCommaDecimals();renderHistory();calculate();renderPawn();
 });
