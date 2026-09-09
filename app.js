@@ -1,29 +1,111 @@
 const KARATS=[8,14,18,20,22,24];
 const defaults={max:86,pawn1:55,pawn2:75,offers:[12,29,49,75]};
-let config=JSON.parse(localStorage.getItem('goldConfig')||'null')||defaults;
+function readConfig(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('goldConfig')||'null');
+    return saved&&typeof saved==='object'?{...defaults,...saved,offers:Array.isArray(saved.offers)&&saved.offers.length===4?saved.offers:defaults.offers}:defaults;
+  }catch{return defaults}
+}
+let config=readConfig();
 const state={weights:Object.fromEntries(KARATS.map(k=>[k,0])),price:75};
-const €=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(v||0);
-const n=v=>Number.parseFloat(String(v).replace(',','.'))||0;
-function renderInputs(){document.querySelector('#karatInputs').innerHTML=KARATS.map(k=>`<div class="karat-card"><label>${k}K</label><input data-karat="${k}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"><em>gramos</em></div>`).join('');document.querySelectorAll('[data-karat]').forEach(i=>i.addEventListener('input',e=>{state.weights[e.target.dataset.karat]=n(e.target.value);calculate()}))}
-function calculate(){const total=Object.values(state.weights).reduce((a,b)=>a+b,0);const eq=KARATS.reduce((a,k)=>a+state.weights[k]*(k/18),0);const fine=KARATS.reduce((a,k)=>a+state.weights[k]*(k/24),0);const purity=total?fine/total*100:0;document.querySelector('#totalWeight').textContent=`${total.toFixed(2)} g · equivalente 18K: ${eq.toFixed(2)} g`;document.querySelector('#totalValue').textContent=€(eq*state.price);document.querySelector('#grossValue').textContent=€(eq*state.price);document.querySelector('#eq18').textContent=`${eq.toFixed(2)} g`;document.querySelector('#purity').textContent=`${purity.toFixed(1)}%`;document.querySelector('#buyWeight').textContent=`${eq.toFixed(2)} g`;renderOffers(eq);renderPawn()}
-function renderOffers(eq){const offers=[...config.offers,config.max].sort((a,b)=>a-b);document.querySelector('#offerTable').innerHTML=offers.map((r,i)=>`<div class="offer"><div><span>${r===config.max?'Máximo':'Oferta '+(i+1)}</span><div class="rate">${r.toFixed(2)} €/g</div></div><div class="amount">${€(eq*r)}</div></div>`).join('');document.querySelector('#maxOffer').textContent=`${config.max.toFixed(2)} €/g`}
-function renderPawn(){const grams=n(document.getElementById('pawnGrams')?.value);const min=n(document.getElementById('pawnMinRate')?.value);const max=n(document.getElementById('pawnMaxRate')?.value);if(document.getElementById('pawnMinTotal'))document.getElementById('pawnMinTotal').textContent=€(grams*min);if(document.getElementById('pawnMaxTotal'))document.getElementById('pawnMaxTotal').textContent=€(grams*max)}
-function loadConfig(){[['cfgMax','max'],['cfgPawn1','pawn1'],['cfgPawn2','pawn2']].forEach(([id,k])=>document.getElementById(id).value=config[k]);config.offers.forEach((v,i)=>document.getElementById(`cfgOffer${i+1}`).value=v);document.getElementById('pawnMinRate').value=config.pawn1;document.getElementById('pawnMaxRate').value=config.pawn2}
-function saveHistory(){const total=Object.values(state.weights).reduce((a,b)=>a+b,0);if(!total)return;const eq=KARATS.reduce((a,k)=>a+state.weights[k]*(k/18),0);const items=JSON.parse(localStorage.getItem('goldHistory')||'[]');items.unshift({date:new Date().toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}),weight:total,eq,value:eq*state.price});localStorage.setItem('goldHistory',JSON.stringify(items.slice(0,20)));renderHistory()}
-function renderHistory(){const list=document.getElementById('historyList');const items=JSON.parse(localStorage.getItem('goldHistory')||'[]');list.innerHTML=items.map(x=>`<div class="history-item"><strong>${€(x.value)}</strong><div>${x.weight.toFixed(2)} g · ${x.eq.toFixed(2)} g eq. 18K</div><small>${x.date}</small></div>`).join('')}
+const €=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number.isFinite(v)?v:0);
+const n=v=>Number.parseFloat(String(v??'').replace(',','.'))||0;
+const $=id=>document.getElementById(id);
+
+function renderInputs(){
+  $('karatInputs').innerHTML=KARATS.map(k=>`<div class="karat-card"><label>${k}K</label><input data-karat="${k}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"><em>gramos</em></div>`).join('');
+  document.querySelectorAll('[data-karat]').forEach(i=>i.addEventListener('input',e=>{state.weights[e.target.dataset.karat]=n(e.target.value);calculate()}));
+}
+function calculate(){
+  const total=Object.values(state.weights).reduce((a,b)=>a+b,0);
+  const eq=KARATS.reduce((a,k)=>a+state.weights[k]*(k/18),0);
+  const fine=KARATS.reduce((a,k)=>a+state.weights[k]*(k/24),0);
+  const purity=total?fine/total*100:0;
+  $('totalWeight').textContent=`${total.toFixed(2)} g · equivalente 18K: ${eq.toFixed(2)} g`;
+  $('totalValue').textContent=€(eq*state.price);
+  $('grossValue').textContent=€(eq*state.price);
+  $('eq18').textContent=`${eq.toFixed(2)} g`;
+  $('purity').textContent=`${purity.toFixed(1)}%`;
+  $('buyWeight').textContent=`${eq.toFixed(2)} g`;
+  renderOffers(eq);
+  renderPawn();
+}
+function renderOffers(eq){
+  const offers=[...config.offers,config.max].sort((a,b)=>a-b);
+  $('offerTable').innerHTML=offers.map((r,i)=>`<div class="offer"><div><span>${r===config.max?'Máximo':'Oferta '+(i+1)}</span><div class="rate">${Number(r).toFixed(2)} €/g</div></div><div class="amount">${€(eq*r)}</div></div>`).join('');
+  $('maxOffer').textContent=`${Number(config.max).toFixed(2)} €/g`;
+}
+function renderPawn(){
+  const grams=n($('pawnGrams')?.value);
+  const min=n($('pawnMinRate')?.value);
+  const max=n($('pawnMaxRate')?.value);
+  if($('pawnMinTotal'))$('pawnMinTotal').textContent=€(grams*min);
+  if($('pawnMaxTotal'))$('pawnMaxTotal').textContent=€(grams*max);
+}
+function loadConfig(){
+  $('cfgMax').value=config.max;
+  $('cfgPawn1').value=config.pawn1;
+  $('cfgPawn2').value=config.pawn2;
+  config.offers.forEach((v,i)=>{if($(`cfgOffer${i+1}`))$(`cfgOffer${i+1}`).value=v});
+  $('pawnMinRate').value=config.pawn1;
+  $('pawnMaxRate').value=config.pawn2;
+}
+function saveHistory(){
+  const total=Object.values(state.weights).reduce((a,b)=>a+b,0);if(!total)return;
+  const eq=KARATS.reduce((a,k)=>a+state.weights[k]*(k/18),0);
+  const items=JSON.parse(localStorage.getItem('goldHistory')||'[]');
+  items.unshift({date:new Date().toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}),weight:total,eq,value:eq*state.price});
+  localStorage.setItem('goldHistory',JSON.stringify(items.slice(0,20)));renderHistory();
+}
+function renderHistory(){
+  const list=$('historyList');
+  let items=[];try{items=JSON.parse(localStorage.getItem('goldHistory')||'[]')}catch{}
+  list.innerHTML=items.map(x=>`<div class="history-item"><strong>${€(x.value)}</strong><div>${Number(x.weight).toFixed(2)} g · ${Number(x.eq).toFixed(2)} g eq. 18K</div><small>${x.date}</small></div>`).join('');
+}
 function clearAll(){document.querySelectorAll('[data-karat]').forEach(i=>i.value='');KARATS.forEach(k=>state.weights[k]=0);calculate()}
-function applyTheme(isLight){document.body.classList.toggle('light',isLight);const btn=document.getElementById('themeBtn');btn.textContent=isLight?'🌙':'☀️';btn.setAttribute('aria-label',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('title',isLight?'Activar modo noche':'Activar modo día');btn.setAttribute('aria-pressed',String(isLight));const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',isLight?'#f5f2ea':'#111111')}
-document.getElementById('priceRange').addEventListener('input',e=>{state.price=n(e.target.value);document.getElementById('referencePrice').textContent=`${state.price.toFixed(2)} €/g`;calculate()});
-document.getElementById('clearBtn').addEventListener('click',clearAll);
-document.getElementById('saveConfig').addEventListener('click',()=>{config={max:n(cfgMax.value)||defaults.max,pawn1:n(cfgPawn1.value)||defaults.pawn1,pawn2:n(cfgPawn2.value)||defaults.pawn2,offers:[1,2,3,4].map(i=>n(document.getElementById(`cfgOffer${i}`).value)).map((v,i)=>v||defaults.offers[i])};localStorage.setItem('goldConfig',JSON.stringify(config));loadConfig();calculate();alert('Configuración guardada')});
-document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.view).classList.add('active');if(btn.dataset.view==='historial')renderHistory();if(btn.dataset.view==='empenos')renderPawn()}));
-['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>document.getElementById(id).addEventListener('input',renderPawn));
-document.getElementById('themeBtn').addEventListener('click',()=>{const isLight=!document.body.classList.contains('light');localStorage.setItem('goldTheme',isLight?'light':'dark');applyTheme(isLight)});
-// Evita zoom accidental por doble toque, pellizco o gesto de zoom en iOS.
-document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
-let lastTouchEnd=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<=300)e.preventDefault();lastTouchEnd=now},{passive:false});
+function applyTheme(isLight){
+  document.body.classList.toggle('light',isLight);
+  const btn=$('themeBtn');
+  btn.textContent=isLight?'🌙':'☀️';
+  btn.setAttribute('aria-label',isLight?'Activar modo noche':'Activar modo día');
+  btn.setAttribute('title',isLight?'Activar modo noche':'Activar modo día');
+  btn.setAttribute('aria-pressed',String(isLight));
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',isLight?'#f5f2ea':'#111111');
+}
+function toggleView(viewId){
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===viewId));
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===viewId));
+  if(viewId==='historial')renderHistory();
+  if(viewId==='empenos')renderPawn();
+}
+
+$('priceRange').addEventListener('input',e=>{state.price=n(e.target.value);$('referencePrice').textContent=`${state.price.toFixed(2)} €/g`;calculate()});
+$('clearBtn').addEventListener('click',clearAll);
+$('saveConfig').addEventListener('click',()=>{
+  config={
+    max:n($('cfgMax').value)||defaults.max,
+    pawn1:n($('cfgPawn1').value)||defaults.pawn1,
+    pawn2:n($('cfgPawn2').value)||defaults.pawn2,
+    offers:[1,2,3,4].map(i=>n($(`cfgOffer${i}`).value)||defaults.offers[i-1])
+  };
+  localStorage.setItem('goldConfig',JSON.stringify(config));
+  loadConfig();calculate();
+  alert('Configuración guardada');
+});
+document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>toggleView(btn.dataset.view)));
+['pawnGrams','pawnMinRate','pawnMaxRate'].forEach(id=>$(id).addEventListener('input',renderPawn));
+$('themeBtn').addEventListener('click',()=>{
+  const isLight=!document.body.classList.contains('light');
+  localStorage.setItem('goldTheme',isLight?'light':'dark');
+  applyTheme(isLight);
+});
+
+// No bloqueamos touchend/dblclick globalmente: en iPhone eso puede impedir que Safari genere el click.
+// El control del zoom se realiza mediante CSS touch-action y el viewport user-scalable=no.
 applyTheme(localStorage.getItem('goldTheme')==='light');
-renderInputs();loadConfig();renderHistory();calculate();renderPawn();
+renderInputs();
+loadConfig();
+renderHistory();
+calculate();
+renderPawn();
